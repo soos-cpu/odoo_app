@@ -16,7 +16,7 @@ services:
   odoo:
     image: ccr.ccs.tencentyun.com/soos/odooenv:17.0
     volumes:
-      - ./data:/var/lib/odoo
+      - ./odoo_data:/var/lib/odoo
       - ./app:/opt/odoo
     ports:
       - "8069:8069"
