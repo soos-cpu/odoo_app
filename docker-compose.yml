@@ -1,0 +1,44 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:16.0
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      PGDATA: /var/lib/postgresql/data/
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo_pwd
+    privileged: true
+    restart: always
+  odoo:
+    image: ccr.ccs.tencentyun.com/soos/odooenv:17.0
+    volumes:
+      - ./data:/var/lib/odoo
+      - ./app:/opt/odoo
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    depends_on:
+      - postgres
+    restart: always
+    command:
+      - /opt/odoo/odoo/odoo-bin
+      - --config=/opt/odoo/odoo.conf
+      - --log-handler=:INFO
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/static:/etc/nginx/static
+      - ./nginx/certificate:/etc/nginx/certificate
+      - ./nginx/log/odoo.access.log:/var/log/nginx/odoo.access.log
+      - ./nginx/log/odoo.error.log:/var/log/nginx/odoo.error.log
+    depends_on:
+      - odoo
+    restart: always
